@@ -5,7 +5,6 @@ import org.springframework.hateoas.RepresentationModel;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.Date;
 import java.util.UUID;
 
 @Entity
@@ -16,13 +15,12 @@ public class UserModel  extends RepresentationModel<UserModel> implements Serial
 
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
+    @Column(name="id_user", unique = true)
     private UUID idUser;
     private String name;
+    @Column(name="email", unique = true, nullable = false)
     private String email;
     private String password;
-    private Date birthDate;
-    private String cpf;
-    private String phone;
 
     public UUID getIdUser() {
         return idUser;
@@ -56,27 +54,4 @@ public class UserModel  extends RepresentationModel<UserModel> implements Serial
         this.password = password;
     }
 
-    public Date getBirthDate() {
-        return birthDate;
-    }
-
-    public void setBirthDate(Date birthDate) {
-        this.birthDate = birthDate;
-    }
-
-    public String getCpf() {
-        return cpf;
-    }
-
-    public void setCpf(String cpf) {
-        this.cpf = cpf;
-    }
-
-    public String getPhone() {
-        return phone;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
 }
