@@ -31,8 +31,8 @@ ENTRYPOINT ["java", "-jar", "/app.jar"]
 ```
 
 
-### Configuration
-# Set the following environment variables in your deployment environment:
+## Configuration
+### Set the following environment variables in your deployment environment:
 - DATABASE_URL
 - DATABASE_USERNAME
 - DATABASE_PASSWORD
@@ -46,5 +46,5 @@ ENTRYPOINT ["java", "-jar", "/app.jar"]
 - Detailed product management.
 - Generating financial reports and inventory alerts based on user spending.
 
-### License
-# This project is released under the MIT License.
+## License
+### This project is released under the MIT License.
