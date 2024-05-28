@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -24,54 +25,78 @@ public class ProductController {
     ProductRepository productRepository;
 
     @PostMapping("/products")
-    public ResponseEntity<ProductModel> saveProducts(@RequestBody @Valid ProductRecordDto productRecordDto){
-       var productModel = new ProductModel();
-        BeanUtils.copyProperties(productRecordDto, productModel);
-        return ResponseEntity.status(HttpStatus.CREATED).body(productRepository.save(productModel));
+    public ResponseEntity<?> saveProducts(@RequestBody @Valid ProductRecordDto productRecordDto) {
+        try {
+            var productModel = new ProductModel();
+            BeanUtils.copyProperties(productRecordDto, productModel);
+            return ResponseEntity.status(HttpStatus.CREATED).body(productRepository.save(productModel));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred: " + e.getMessage());
+        }
     }
 
-
     @GetMapping("/products")
-    public ResponseEntity<List<ProductModel>> getAllProducts(){
-        List<ProductModel> productsList = productRepository.findAll();
-        if(!productsList.isEmpty()){
-            for (ProductModel product : productsList) {
-                UUID id = product.getIdProduct();
-                product.add(linkTo(methodOn(ProductController.class).getOneProduct(id)).withSelfRel());
+    public ResponseEntity<?> getAllProducts() {
+        try {
+            List<ProductModel> productsList = productRepository.findAll();
+            if (!productsList.isEmpty()) {
+                for (ProductModel product : productsList) {
+                    UUID id = product.getIdProduct();
+                    product.add(linkTo(methodOn(ProductController.class).getOneProduct(id)).withSelfRel());
+                }
             }
+            return ResponseEntity.status(HttpStatus.OK).body(productsList);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred: " + e.getMessage());
         }
-        return ResponseEntity.status(HttpStatus.OK).body(productsList);
     }
 
     @GetMapping("/products/{id}")
-    public ResponseEntity<Object> getOneProduct(@PathVariable(value = "id") UUID id){
-        Optional<ProductModel> product0 = productRepository.findById(id);
-        if(product0.isEmpty()){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product not found");
+    public ResponseEntity<?> getOneProduct(@PathVariable(value = "id") UUID id) {
+        try {
+            Optional<ProductModel> product0 = productRepository.findById(id);
+            if (product0.isEmpty()) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found");
+            }
+            product0.get().add(linkTo(methodOn(ProductController.class).getAllProducts()).withSelfRel());
+            return ResponseEntity.status(HttpStatus.OK).body(product0.get());
+        } catch (ResponseStatusException e) {
+            return ResponseEntity.status(e.getStatusCode()).body(e.getReason());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred: " + e.getMessage());
         }
-        product0.get().add(linkTo(methodOn(ProductController.class).getAllProducts()).withSelfRel());
-
-        return ResponseEntity.status(HttpStatus.OK).body(product0.get());
     }
 
     @PutMapping("/products/{id}")
-    public ResponseEntity<Object> updateProduct(@PathVariable(value = "id") UUID id, @RequestBody @Valid ProductRecordDto productRecordDto){
-        Optional<ProductModel> product0 = productRepository.findById(id);
-        if(product0.isEmpty()){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product not found");
+    public ResponseEntity<?> updateProduct(@PathVariable(value = "id") UUID id, @RequestBody @Valid ProductRecordDto productRecordDto) {
+        try {
+            Optional<ProductModel> product0 = productRepository.findById(id);
+            if (product0.isEmpty()) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found");
+            }
+            var productModel = product0.get();
+            BeanUtils.copyProperties(productRecordDto, productModel);
+            return ResponseEntity.status(HttpStatus.OK).body(productRepository.save(productModel));
+        } catch (ResponseStatusException e) {
+            return ResponseEntity.status(e.getStatusCode()).body(e.getReason());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred: " + e.getMessage());
         }
-        var productModel = product0.get();
-        BeanUtils.copyProperties(productRecordDto, productModel);
-        return ResponseEntity.status(HttpStatus.OK).body(productRepository.save(productModel));
     }
 
     @DeleteMapping("/products/{id}")
-    public ResponseEntity<Object> deleteProduct(@PathVariable(value = "id") UUID id){
-        Optional<ProductModel> product0 = productRepository.findById(id);
-        if(product0.isEmpty()){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product not found");
+    public ResponseEntity<?> deleteProduct(@PathVariable(value = "id") UUID id) {
+        try {
+            Optional<ProductModel> product0 = productRepository.findById(id);
+            if (product0.isEmpty()) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found");
+            }
+            productRepository.delete(product0.get());
+            return ResponseEntity.status(HttpStatus.OK).body("Product deleted successfully");
+        } catch (ResponseStatusException e) {
+            return ResponseEntity.status(e.getStatusCode()).body(e.getReason());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred: " + e.getMessage());
         }
-        productRepository.delete(product0.get());
-        return ResponseEntity.status(HttpStatus.OK).body("Product deleted successfully");
     }
 }
