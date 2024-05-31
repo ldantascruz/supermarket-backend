@@ -68,4 +68,15 @@ public class ShoppingListsModel extends RepresentationModel<ShoppingListsModel> 
     public void setId(UUID id) {
         this.id = id;
     }
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = new Timestamp(System.currentTimeMillis());
+        this.updatedAt = new Timestamp(System.currentTimeMillis());
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = new Timestamp(System.currentTimeMillis());
+    }
 }
