@@ -34,7 +34,7 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email already exists");
         }
 
-        userModel.setPassword(passwordEncoder.encode(userModel.getPassword()));
+        userModel.setPasswordHash(passwordEncoder.encode(userModel.getPasswordHash()));
 
         return ResponseEntity.status(HttpStatus.CREATED).body(userRepository.save(userModel)) ;
     }
@@ -44,7 +44,7 @@ public class UserController {
         List<UserModel> usersList = userRepository.findAll();
         if(!usersList.isEmpty()){
             for (UserModel user : usersList) {
-                UUID id = user.getIdUser();
+                UUID id = user.getId();
                 user.add(linkTo(methodOn(UserController.class).getOneUser(id)).withSelfRel());
             }
         }

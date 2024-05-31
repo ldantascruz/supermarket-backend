@@ -28,10 +28,10 @@ public class UserDetailsImpl implements UserDetails {
 
     public static UserDetailsImpl build(UserModel user) {
         return new UserDetailsImpl(
-                user.getIdUser(),
+                user.getId(),
                 user.getName(),
                 user.getEmail(),
-                user.getPassword(),
+                user.getPasswordHash(),
                 new ArrayList<>()
         );
     }

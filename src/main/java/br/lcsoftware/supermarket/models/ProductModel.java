@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 @Entity
-@Table(name= "TB_PRODUCTS")
+@Table(name= "shopping_lists")
 public class ProductModel extends RepresentationModel<ProductModel> implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;

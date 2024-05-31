@@ -9,8 +9,9 @@ import java.sql.Timestamp;
 import java.util.UUID;
 
 @Entity
-@Table(name= "users")
-public class UserModel extends RepresentationModel<UserModel> implements Serializable {
+@Table(name = "shopping_lists")
+public class ShoppingListsModel extends RepresentationModel<ShoppingListsModel> implements Serializable {
+
     @Serial
     private static final long serialVersionUID = 1L;
 
@@ -18,23 +19,22 @@ public class UserModel extends RepresentationModel<UserModel> implements Seriali
     @GeneratedValue(strategy= GenerationType.AUTO)
     @Column(name= "id", unique = true, insertable = false, updatable = false, nullable = false)
     private UUID id;
-    @Column(name="email", unique = true, nullable = false)
-    private String email;
     @Column(name="name", nullable = false)
     private String name;
-    @Column(name= "password_hash", nullable = false)
-    private String passwordHash;
     @Column(name="created_at", nullable = false, updatable = false, insertable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private Timestamp createdAt;
     @Column(name="updated_at", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private Timestamp updatedAt;
+    @ManyToOne
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    private UserModel user;
 
-    public UUID getId() {
-        return id;
+    public UserModel getUser() {
+        return user;
     }
 
-    public void setId(UUID id) {
-        this.id = id;
+    public void setUser(UserModel user) {
+        this.user = user;
     }
 
     public String getName() {
@@ -45,22 +45,6 @@ public class UserModel extends RepresentationModel<UserModel> implements Seriali
         this.name = name;
     }
 
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPasswordHash() {
-        return passwordHash;
-    }
-
-    public void setPasswordHash(String passwordHash) {
-        this.passwordHash = passwordHash;
-    }
-
     public Timestamp getCreatedAt() {
         return createdAt;
     }
@@ -69,12 +53,19 @@ public class UserModel extends RepresentationModel<UserModel> implements Seriali
         this.createdAt = createdAt;
     }
 
-
     public Timestamp getUpdatedAt() {
         return updatedAt;
     }
 
     public void setUpdatedAt(Timestamp updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public UUID getId() {
+        return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
     }
 }
