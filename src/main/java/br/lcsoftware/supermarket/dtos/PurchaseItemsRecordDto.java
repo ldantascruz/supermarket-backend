@@ -8,6 +8,6 @@ public record PurchaseItemsRecordDto(
         @NotNull UUID purchaseId,
         @NotNull UUID itemId,
         @NotNull Integer quantity,
-        @NotNull Double unitPrice
+        @NotNull Float unitPrice
 ) {
 }

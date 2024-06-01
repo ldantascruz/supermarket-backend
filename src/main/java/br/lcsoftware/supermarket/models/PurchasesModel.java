@@ -25,7 +25,7 @@ public class PurchasesModel extends RepresentationModel<PurchasesModel> implemen
     @JoinColumn(name = "shopping_list_id", referencedColumnName = "id")
     private ShoppingListsModel shoppingList;
     @Column(name = "total_price", nullable = false)
-    private Double totalPrice;
+    private Float totalPrice;
     @Column(name = "purchase_date", nullable = false, updatable = false, insertable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private Timestamp purchaseDate;
     @Column(name = "created_at", nullable = false, updatable = false, insertable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
@@ -57,11 +57,11 @@ public class PurchasesModel extends RepresentationModel<PurchasesModel> implemen
         this.shoppingList = shoppingList;
     }
 
-    public Double getTotalPrice() {
+    public Float getTotalPrice() {
         return totalPrice;
     }
 
-    public void setTotalPrice(Double totalPrice) {
+    public void setTotalPrice(Float totalPrice) {
         this.totalPrice = totalPrice;
     }
 

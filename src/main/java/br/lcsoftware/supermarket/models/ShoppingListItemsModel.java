@@ -15,25 +15,28 @@ public class ShoppingListItemsModel extends RepresentationModel<ShoppingListItem
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy= GenerationType.AUTO)
-    @Column(name= "id", unique = true, insertable = false, updatable = false, nullable = false)
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id", unique = true, insertable = false, updatable = false, nullable = false)
     private UUID id;
+
     @ManyToOne
     @JoinColumn(name = "shopping_list_id", referencedColumnName = "id")
     private ShoppingListsModel shoppingList;
+
     @ManyToOne
     @JoinColumn(name = "item_id", referencedColumnName = "id")
-    private ItemsModel item;
-    @Column(name="quantity", nullable = false)
-    private Integer quantity;
-    @Column(name="unit_price", nullable = false)
-    private Double unitPrice;
-    @Column(name = "total_price", nullable = false)
-    private Double totalPrice;
+    private ItemModel item;
+
     @Column(name = "created_at", nullable = false, updatable = false, insertable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private Timestamp createdAt;
+
     @Column(name = "updated_at", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private Timestamp updatedAt;
+
+    @Transient
+    private Double totalPrice;
+
+    // Getters and Setters
 
     public UUID getId() {
         return id;
@@ -51,36 +54,12 @@ public class ShoppingListItemsModel extends RepresentationModel<ShoppingListItem
         this.shoppingList = shoppingList;
     }
 
-    public ItemsModel getItem() {
+    public ItemModel getItem() {
         return item;
     }
 
-    public void setItem(ItemsModel item) {
+    public void setItem(ItemModel item) {
         this.item = item;
-    }
-
-    public Integer getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(Integer quantity) {
-        this.quantity = quantity;
-    }
-
-    public Double getUnitPrice() {
-        return unitPrice;
-    }
-
-    public void setUnitPrice(Double unitPrice) {
-        this.unitPrice = unitPrice;
-    }
-
-    public Double getTotalPrice() {
-        return totalPrice;
-    }
-
-    public void setTotalPrice(Double totalPrice) {
-        this.totalPrice = totalPrice;
     }
 
     public Timestamp getCreatedAt() {
@@ -99,16 +78,21 @@ public class ShoppingListItemsModel extends RepresentationModel<ShoppingListItem
         this.updatedAt = updatedAt;
     }
 
+    public Float getTotalPrice() {
+        if (this.item != null) {
+            return this.item.getUnitPrice() * this.item.getQuantity();
+        }
+        return 0.0f;
+    }
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = new Timestamp(System.currentTimeMillis());
         this.updatedAt = new Timestamp(System.currentTimeMillis());
-        this.totalPrice = this.unitPrice * this.quantity;
     }
 
     @PreUpdate
     protected void onUpdate() {
         this.updatedAt = new Timestamp(System.currentTimeMillis());
-        this.totalPrice = this.unitPrice * this.quantity;
     }
 }

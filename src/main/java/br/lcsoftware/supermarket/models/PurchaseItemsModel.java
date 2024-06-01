@@ -23,13 +23,13 @@ public class PurchaseItemsModel extends RepresentationModel<PurchaseItemsModel> 
     private PurchasesModel purchase;
     @ManyToOne
     @JoinColumn(name = "item_id", referencedColumnName = "id")
-    private ItemsModel item;
+    private ItemModel item;
     @Column(name="quantity", nullable = false)
     private Integer quantity;
     @Column(name="unit_price", nullable = false)
-    private Double unitPrice;
+    private Float unitPrice;
     @Column(name = "total_price", nullable = false)
-    private Double totalPrice;
+    private Float totalPrice;
     @Column(name = "created_at", nullable = false, updatable = false, insertable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private Timestamp createdAt;
     @Column(name = "updated_at", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
@@ -51,11 +51,11 @@ public class PurchaseItemsModel extends RepresentationModel<PurchaseItemsModel> 
         this.purchase = purchase;
     }
 
-    public ItemsModel getItem() {
+    public ItemModel getItem() {
         return item;
     }
 
-    public void setItem(ItemsModel item) {
+    public void setItem(ItemModel item) {
         this.item = item;
     }
 
@@ -67,19 +67,19 @@ public class PurchaseItemsModel extends RepresentationModel<PurchaseItemsModel> 
         this.quantity = quantity;
     }
 
-    public Double getUnitPrice() {
+    public Float getUnitPrice() {
         return unitPrice;
     }
 
-    public void setUnitPrice(Double unitPrice) {
+    public void setUnitPrice(Float unitPrice) {
         this.unitPrice = unitPrice;
     }
 
-    public Double getTotalPrice() {
+    public Float getTotalPrice() {
         return totalPrice;
     }
 
-    public void setTotalPrice(Double totalPrice) {
+    public void setTotalPrice(Float totalPrice) {
         this.totalPrice = totalPrice;
     }
 

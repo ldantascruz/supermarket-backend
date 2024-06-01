@@ -9,8 +9,8 @@ import java.sql.Timestamp;
 import java.util.UUID;
 
 @Entity
-@Table(name = "users")
-public class UserModel extends RepresentationModel<UserModel> implements Serializable {
+@Table(name = "item")
+public class ItemModel extends RepresentationModel<ItemModel> implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
@@ -19,14 +19,18 @@ public class UserModel extends RepresentationModel<UserModel> implements Seriali
     @Column(name = "id", unique = true, insertable = false, updatable = false, nullable = false)
     private UUID id;
 
-    @Column(name = "email", unique = true, nullable = false)
-    private String email;
-
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "password_hash", nullable = false)
-    private String passwordHash;
+    @Column(name = "quantity")
+    private Integer quantity;
+
+    @Column(name = "unit_price")
+    private Float unitPrice;
+
+    @ManyToOne
+    @JoinColumn(name = "shopping_list_id", referencedColumnName = "id", nullable = false)
+    private ShoppingListsModel shoppingList;
 
     @Column(name = "created_at", nullable = false, updatable = false, insertable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private Timestamp createdAt;
@@ -44,14 +48,6 @@ public class UserModel extends RepresentationModel<UserModel> implements Seriali
         this.id = id;
     }
 
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
     public String getName() {
         return name;
     }
@@ -60,12 +56,28 @@ public class UserModel extends RepresentationModel<UserModel> implements Seriali
         this.name = name;
     }
 
-    public String getPasswordHash() {
-        return passwordHash;
+    public Integer getQuantity() {
+        return quantity;
     }
 
-    public void setPasswordHash(String passwordHash) {
-        this.passwordHash = passwordHash;
+    public void setQuantity(Integer quantity) {
+        this.quantity = quantity;
+    }
+
+    public Float getUnitPrice() {
+        return unitPrice;
+    }
+
+    public void setUnitPrice(Float unitPrice) {
+        this.unitPrice = unitPrice;
+    }
+
+    public ShoppingListsModel getShoppingList() {
+        return shoppingList;
+    }
+
+    public void setShoppingList(ShoppingListsModel shoppingList) {
+        this.shoppingList = shoppingList;
     }
 
     public Timestamp getCreatedAt() {
