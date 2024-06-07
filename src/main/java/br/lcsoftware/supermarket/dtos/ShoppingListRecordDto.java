@@ -5,8 +5,7 @@ import jakarta.validation.constraints.NotNull;
 
 import java.util.UUID;
 
-public record ShoppingListsRecordDto(
-        @NotBlank @NotNull String name,
+public record ShoppingListRecordDto(
+        @NotBlank String name,
         @NotNull UUID userId
-) {
-}
+) {}

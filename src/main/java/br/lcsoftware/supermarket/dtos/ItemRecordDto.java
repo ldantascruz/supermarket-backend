@@ -6,9 +6,8 @@ import jakarta.validation.constraints.NotNull;
 import java.util.UUID;
 
 public record ItemRecordDto(
-        @NotBlank @NotNull String name,
-        Integer quantity,
         @NotNull UUID shoppingListId,
+        @NotBlank String name,
+        Integer quantity,
         Float unitPrice
-) {
-}
+) {}

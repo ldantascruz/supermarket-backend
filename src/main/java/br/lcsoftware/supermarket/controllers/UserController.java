@@ -1,6 +1,7 @@
 package br.lcsoftware.supermarket.controllers;
 
 import br.lcsoftware.supermarket.dtos.UserRecordDto;
+import br.lcsoftware.supermarket.dtos.UserResponseRecordDto;
 import br.lcsoftware.supermarket.models.UserModel;
 import br.lcsoftware.supermarket.repositories.UserRepository;
 import jakarta.validation.Valid;
@@ -13,11 +14,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
-
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+import java.util.stream.Collectors;
 
 @RestController
+@RequestMapping("/users")
 public class UserController {
 
     @Autowired
@@ -26,8 +26,8 @@ public class UserController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @PostMapping("/users")
-    public ResponseEntity<Object> saveUser(@RequestBody @Valid UserRecordDto userRecordDto){
+    @PostMapping
+    public ResponseEntity<Object> saveUser(@RequestBody @Valid UserRecordDto userRecordDto) {
         var userModel = new UserModel();
         BeanUtils.copyProperties(userRecordDto, userModel);
         if (userRepository.findByEmail(userModel.getEmail()).isPresent()) {
@@ -35,52 +35,72 @@ public class UserController {
         }
 
         userModel.setPasswordHash(passwordEncoder.encode(userModel.getPasswordHash()));
+        userRepository.save(userModel);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(userRepository.save(userModel)) ;
+        var responseDto = new UserResponseRecordDto(
+                userModel.getId(),
+                userModel.getEmail(),
+                userModel.getName()
+        );
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
     }
 
-    @GetMapping("/users")
-    public ResponseEntity<List<UserModel>> getAllUsers(){
-        List<UserModel> usersList = userRepository.findAll();
-        if(!usersList.isEmpty()){
-            for (UserModel user : usersList) {
-                UUID id = user.getId();
-                user.add(linkTo(methodOn(UserController.class).getOneUser(id)).withSelfRel());
-            }
-        }
+    @GetMapping
+    public ResponseEntity<List<UserResponseRecordDto>> getAllUsers() {
+        List<UserResponseRecordDto> usersList = userRepository.findAll().stream().map(user ->
+                new UserResponseRecordDto(
+                        user.getId(),
+                        user.getEmail(),
+                        user.getName()
+                )
+        ).collect(Collectors.toList());
+
         return ResponseEntity.status(HttpStatus.OK).body(usersList);
     }
 
-    @GetMapping("/users/{id}")
-    public ResponseEntity<Object> getOneUser(@PathVariable(value = "id") UUID id){
+    @GetMapping("/{id}")
+    public ResponseEntity<Object> getOneUser(@PathVariable(value = "id") UUID id) {
         var user0 = userRepository.findById(id);
-        if(user0.isEmpty()){
+        if (user0.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
         }
-        user0.get().add(linkTo(methodOn(UserController.class).getAllUsers()).withSelfRel());
+        UserModel user = user0.get();
+        var responseDto = new UserResponseRecordDto(
+                user.getId(),
+                user.getEmail(),
+                user.getName()
+        );
 
-        return ResponseEntity.status(HttpStatus.OK).body(user0.get());
+        return ResponseEntity.status(HttpStatus.OK).body(responseDto);
     }
 
-    @PutMapping("/users/{id}")
-    public ResponseEntity<Object> updateUser(@PathVariable(value = "id") UUID id, @RequestBody @Valid UserRecordDto userRecordDto){
+    @PutMapping("/{id}")
+    public ResponseEntity<Object> updateUser(@PathVariable(value = "id") UUID id, @RequestBody @Valid UserRecordDto userRecordDto) {
         var user0 = userRepository.findById(id);
-        if(user0.isEmpty()){
+        if (user0.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
         }
         var user = user0.get();
         BeanUtils.copyProperties(userRecordDto, user);
-        return ResponseEntity.status(HttpStatus.OK).body(userRepository.save(user));
+        userRepository.save(user);
+
+        var responseDto = new UserResponseRecordDto(
+                user.getId(),
+                user.getEmail(),
+                user.getName()
+        );
+
+        return ResponseEntity.status(HttpStatus.OK).body(responseDto);
     }
 
-    @DeleteMapping("/users/{id}")
-    public ResponseEntity<Object> deleteUser(@PathVariable(value = "id") UUID id){
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Object> deleteUser(@PathVariable(value = "id") UUID id) {
         var user0 = userRepository.findById(id);
-        if(user0.isEmpty()){
+        if (user0.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
         }
         userRepository.delete(user0.get());
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body("User deleted");
     }
-
 }
