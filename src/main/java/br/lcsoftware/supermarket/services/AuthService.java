@@ -1,7 +1,8 @@
 package br.lcsoftware.supermarket.services;
 
-import br.lcsoftware.supermarket.dtos.AccessDto;
+
 import br.lcsoftware.supermarket.dtos.AuthenticationDto;
+import br.lcsoftware.supermarket.dtos.LoginResponseRecordDto;
 import br.lcsoftware.supermarket.security.jwt.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -19,27 +20,25 @@ public class AuthService {
     @Autowired
     private JwtUtils jwtUtils;
 
-    public AccessDto login(AuthenticationDto authDto){
-        try {
+    public LoginResponseRecordDto login(AuthenticationDto authDto){
+        // Cria mecanismo de credencial para o Spring
+        UsernamePasswordAuthenticationToken userAuth = new UsernamePasswordAuthenticationToken(authDto.email(), authDto.password());
 
-            // Cria mecanismo de credencial para o Spring
-            UsernamePasswordAuthenticationToken userAuth = new UsernamePasswordAuthenticationToken(authDto.getEmail(), authDto.getPassword());
+        // Autentica usuário
+        Authentication authentication = authenticationManager.authenticate(userAuth);
 
-            // Autentica usuário
-            Authentication authentication = authenticationManager.authenticate(userAuth);
+        // Recupera informações do usuário autenticado
+        UserDetailsImpl userAuthentication = (UserDetailsImpl)authentication.getPrincipal();
 
-            // Recupera informações do usuário autenticado
-            UserDetailsImpl userAuthentication = (UserDetailsImpl)authentication.getPrincipal();
+        // Gera token JWT
+        String token = jwtUtils.generateTokenFromUserDetailsImpl(userAuthentication);
 
-            // Gera token JWT
-            String token = jwtUtils.generateTokenFromUserDetailsImpl(userAuthentication);
-
-            AccessDto accessDto = new AccessDto(token);
-
-            return accessDto;
-        } catch (BadCredentialsException e){
-            //
-        }
-        return null;
+        // Cria resposta com informações do usuário e token
+        return new LoginResponseRecordDto(
+                userAuthentication.getIdUser(),
+                userAuthentication.getUsername(),
+                userAuthentication.getName(),
+                token
+        );
     }
 }
