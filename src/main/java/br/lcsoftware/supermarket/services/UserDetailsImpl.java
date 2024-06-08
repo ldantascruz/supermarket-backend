@@ -12,6 +12,38 @@ public class UserDetailsImpl implements UserDetails {
 
     private UUID idUser;
 
+    public UUID getIdUser() {
+        return idUser;
+    }
+
+    public void setIdUser(UUID idUser) {
+        this.idUser = idUser;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setAuthorities(Collection<? extends GrantedAuthority> authorities) {
+        this.authorities = authorities;
+    }
+
     private String name;
 
     private String email;
@@ -28,10 +60,10 @@ public class UserDetailsImpl implements UserDetails {
 
     public static UserDetailsImpl build(UserModel user) {
         return new UserDetailsImpl(
-                user.getIdUser(),
+                user.getId(),
                 user.getName(),
                 user.getEmail(),
-                user.getPassword(),
+                user.getPasswordHash(),
                 new ArrayList<>()
         );
     }

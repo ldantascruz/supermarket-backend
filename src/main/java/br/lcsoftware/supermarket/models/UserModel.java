@@ -8,34 +8,30 @@ import java.io.Serializable;
 import java.util.UUID;
 
 @Entity
-@Table(name= "TB_USERS")
-public class UserModel  extends RepresentationModel<UserModel> implements Serializable {
+@Table(name = "TB_USER")
+public class UserModel extends RepresentationModel<UserModel> implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy= GenerationType.AUTO)
-    @Column(name="id_user", unique = true)
-    private UUID idUser;
-    private String name;
-    @Column(name="email", unique = true, nullable = false)
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private UUID id;
+
+    @Column(unique = true, nullable = false)
     private String email;
-    private String password;
 
-    public UUID getIdUser() {
-        return idUser;
+    @Column(nullable = false)
+    private String name;
+
+    @Column(nullable = false)
+    private String passwordHash;
+
+    public UUID getId() {
+        return id;
     }
 
-    public void setIdUser(UUID idUser) {
-        this.idUser = idUser;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
+    public void setId(UUID id) {
+        this.id = id;
     }
 
     public String getEmail() {
@@ -46,12 +42,19 @@ public class UserModel  extends RepresentationModel<UserModel> implements Serial
         this.email = email;
     }
 
-    public String getPassword() {
-        return password;
+    public String getName() {
+        return name;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setName(String name) {
+        this.name = name;
     }
 
+    public String getPasswordHash() {
+        return passwordHash;
+    }
+
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
+    }
 }

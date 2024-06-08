@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>br.lcsoftware</groupId>
 	<artifactId>supermarket</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.2.0-SNAPSHOT</version>
 	<name>supermarket</name>
 	<description>Um projeto backend para atender ao aplicativo &quot;Meu Mercado&quot;</description>
 	<properties>
