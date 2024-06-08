@@ -1,5 +1,6 @@
 package br.lcsoftware.supermarket.controllers;
 
+import br.lcsoftware.supermarket.dtos.ErrorResponseRecordDto;
 import br.lcsoftware.supermarket.dtos.UserRecordDto;
 import br.lcsoftware.supermarket.dtos.UserResponseRecordDto;
 import br.lcsoftware.supermarket.models.UserModel;
@@ -28,79 +29,108 @@ public class UserController {
 
     @PostMapping
     public ResponseEntity<Object> saveUser(@RequestBody @Valid UserRecordDto userRecordDto) {
-        var userModel = new UserModel();
-        BeanUtils.copyProperties(userRecordDto, userModel);
-        if (userRepository.findByEmail(userModel.getEmail()).isPresent()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email already exists");
+        try {
+            var userModel = new UserModel();
+            BeanUtils.copyProperties(userRecordDto, userModel);
+            if (userRepository.findByEmail(userModel.getEmail()).isPresent()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(new ErrorResponseRecordDto(HttpStatus.BAD_REQUEST.value(), "Email already exists"));
+            }
+
+            userModel.setPasswordHash(passwordEncoder.encode(userModel.getPasswordHash()));
+            userRepository.save(userModel);
+
+            var responseDto = new UserResponseRecordDto(
+                    userModel.getId(),
+                    userModel.getEmail(),
+                    userModel.getName()
+            );
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponseRecordDto(HttpStatus.INTERNAL_SERVER_ERROR.value(), "An unexpected error occurred: " + e.getMessage()));
         }
-
-        userModel.setPasswordHash(passwordEncoder.encode(userModel.getPasswordHash()));
-        userRepository.save(userModel);
-
-        var responseDto = new UserResponseRecordDto(
-                userModel.getId(),
-                userModel.getEmail(),
-                userModel.getName()
-        );
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
     }
 
     @GetMapping
-    public ResponseEntity<List<UserResponseRecordDto>> getAllUsers() {
-        List<UserResponseRecordDto> usersList = userRepository.findAll().stream().map(user ->
-                new UserResponseRecordDto(
-                        user.getId(),
-                        user.getEmail(),
-                        user.getName()
-                )
-        ).collect(Collectors.toList());
+    public ResponseEntity<Object> getAllUsers() {
+        try {
+            List<UserResponseRecordDto> usersList = userRepository.findAll().stream().map(user ->
+                    new UserResponseRecordDto(
+                            user.getId(),
+                            user.getEmail(),
+                            user.getName()
+                    )
+            ).collect(Collectors.toList());
 
-        return ResponseEntity.status(HttpStatus.OK).body(usersList);
+            return ResponseEntity.status(HttpStatus.OK).body(usersList);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponseRecordDto(HttpStatus.INTERNAL_SERVER_ERROR.value(), "An unexpected error occurred: " + e.getMessage()));
+        }
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Object> getOneUser(@PathVariable(value = "id") UUID id) {
-        var user0 = userRepository.findById(id);
-        if (user0.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
-        }
-        UserModel user = user0.get();
-        var responseDto = new UserResponseRecordDto(
-                user.getId(),
-                user.getEmail(),
-                user.getName()
-        );
+        try {
+            var user0 = userRepository.findById(id);
+            if (user0.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(new ErrorResponseRecordDto(HttpStatus.NOT_FOUND.value(), "User not found"));
+            }
+            UserModel user = user0.get();
+            var responseDto = new UserResponseRecordDto(
+                    user.getId(),
+                    user.getEmail(),
+                    user.getName()
+            );
 
-        return ResponseEntity.status(HttpStatus.OK).body(responseDto);
+            return ResponseEntity.status(HttpStatus.OK).body(responseDto);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponseRecordDto(HttpStatus.INTERNAL_SERVER_ERROR.value(), "An unexpected error occurred: " + e.getMessage()));
+        }
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Object> updateUser(@PathVariable(value = "id") UUID id, @RequestBody @Valid UserRecordDto userRecordDto) {
-        var user0 = userRepository.findById(id);
-        if (user0.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+        try {
+            var user0 = userRepository.findById(id);
+            if (user0.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(new ErrorResponseRecordDto(HttpStatus.NOT_FOUND.value(), "User not found"));
+            }
+            var user = user0.get();
+            BeanUtils.copyProperties(userRecordDto, user);
+            userRepository.save(user);
+
+            var responseDto = new UserResponseRecordDto(
+                    user.getId(),
+                    user.getEmail(),
+                    user.getName()
+            );
+
+            return ResponseEntity.status(HttpStatus.OK).body(responseDto);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponseRecordDto(HttpStatus.INTERNAL_SERVER_ERROR.value(), "An unexpected error occurred: " + e.getMessage()));
         }
-        var user = user0.get();
-        BeanUtils.copyProperties(userRecordDto, user);
-        userRepository.save(user);
-
-        var responseDto = new UserResponseRecordDto(
-                user.getId(),
-                user.getEmail(),
-                user.getName()
-        );
-
-        return ResponseEntity.status(HttpStatus.OK).body(responseDto);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteUser(@PathVariable(value = "id") UUID id) {
-        var user0 = userRepository.findById(id);
-        if (user0.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+        try {
+            var user0 = userRepository.findById(id);
+            if (user0.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(new ErrorResponseRecordDto(HttpStatus.NOT_FOUND.value(), "User not found"));
+            }
+            userRepository.delete(user0.get());
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("User deleted");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponseRecordDto(HttpStatus.INTERNAL_SERVER_ERROR.value(), "An unexpected error occurred: " + e.getMessage()));
         }
-        userRepository.delete(user0.get());
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body("User deleted");
     }
 }
